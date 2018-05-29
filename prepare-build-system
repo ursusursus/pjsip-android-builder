@@ -4,6 +4,14 @@
 
 BASEDIR=$(pwd)
 
+NDK_FILE=ndk.zip
+NDK_DIR=ndk
+SDK_FILE=sdk.zip
+
+#Force use of GCC instead of ndk default CLANG
+export NDK_TOOLCHAIN_VERSION=4.9
+export PATH="$NDK_TOOLCHAIN_VERSION:$PATH"
+
 if [ "$SETUP_PACKAGES" == "1" ]
 then
     # Setup Java 8
@@ -13,6 +21,8 @@ then
     echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
     echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
     sudo apt-get -y install oracle-java8-installer ant
+
+    sudo apt-get install -y unzip git
 
     DEPS="vim git curl bzip2 gcc g++ binutils make autoconf openssl \
           libssl-dev ant libopus0 \
@@ -25,23 +35,26 @@ if [ "$DOWNLOAD_NDK" == "1" ]
 then
     echo "Downloading Android NDK ..."
     cd "${BASEDIR}"
-    curl -L -# -o ndk.bin "$NDK_DOWNLOAD_URL" 2>&1
+    curl -L -# -o $NDK_FILE "$NDK_DOWNLOAD_URL" 2>&1
     rm -rf "$NDK_DIR_NAME"
     echo "Android NDK downloaded!"
     echo "Extracting Android NDK ..."
-    chmod +x ndk.bin && ./ndk.bin 2>&1 > /dev/null || true
-    rm -rf ndk.bin
+    unzip $NDK_FILE -d $NDK_DIR
+    mv $NDK_DIR/$NDK_DIR_NAME .
+    rm -rf $NDK_DIR
 fi
 
 if [ "$DOWNLOAD_SDK" == "1" ]
 then
     echo "Downloading Android SDK ..."
     cd "${BASEDIR}"
-    curl -L -# -o sdk.tgz "$SDK_DOWNLOAD_URL" 2>&1
+    curl -L -# -o $SDK_FILE "$SDK_DOWNLOAD_URL" 2>&1
     rm -rf "$SDK_DIR_NAME"
+    mkdir $SDK_DIR_NAME
     echo "Android SDK downloaded!"
     echo "Extracting Android SDK ..."
-    tar xzf sdk.tgz && rm -rf sdk.tgz
+    unzip $SDK_FILE -d $SDK_DIR_NAME
+    rm -rf $SDK_FILE
 fi
 
 if [ "$DOWNLOAD_ANDROID_APIS" == "1" ]
@@ -74,16 +87,17 @@ then
     echo "Extracting PJSIP ..."
     tar xjf pjsip.tar.bz2 && rm -rf pjsip.tar.bz2
 
+
     if [ "${PJSIP_DIR_NAME}" == "pjproject-2.4.5" ]
     then
         echo "Fix BASH script error in 2.4.5 tag ..."
         sed -i 's/TARGET_HOST+=-linux-android/TARGET_HOST="\${TARGET_HOST}-linux-android"/g' "${BASEDIR}/${PJSIP_DIR_NAME}/configure-android"
-
-        echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
-        cd g729_patch
-        ./install.sh
-        cd ..
     fi
+
+    # echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
+    # cd g729_patch
+    # ./install.sh
+    # cd ..
 fi
 
 if [ "$DOWNLOAD_SWIG" == "1" ]
@@ -130,7 +144,9 @@ then
 
     if [ "${OPENH264_TARGET_NDK_LEVEL}" -ge "21" ]
     then
-        sed -i 's/APP_ABI := armeabi-v7a arm64-v8a x86 x86_64/APP_ABI := armeabi armeabi-v7a arm64-v8a x86 x86_64 mips mips64/g' jni/Application.mk
+	# BY ENZO -> remove mips -> not very well supported above API 18
+        #sed -i 's/APP_ABI := armeabi-v7a arm64-v8a x86 x86_64/APP_ABI := armeabi armeabi-v7a arm64-v8a x86 x86_64 mips mips64/g' jni/Application.mk
+	sed -i 's/APP_ABI := armeabi-v7a arm64-v8a x86 x86_64/APP_ABI := armeabi armeabi-v7a arm64-v8a x86 x86_64/g' jni/Application.mk
     else
         sed -i 's/APP_ABI := armeabi-v7a arm64-v8a x86 x86_64/APP_ABI := armeabi armeabi-v7a x86/g' jni/Application.mk
     fi
