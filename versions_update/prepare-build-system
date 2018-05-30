@@ -94,10 +94,10 @@ then
         sed -i 's/TARGET_HOST+=-linux-android/TARGET_HOST="\${TARGET_HOST}-linux-android"/g' "${BASEDIR}/${PJSIP_DIR_NAME}/configure-android"
     fi
 
-    # echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
-    # cd g729_patch
-    # ./install.sh
-    # cd ..
+    echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
+    cd g729_patch
+    ./install.sh
+    cd ..
 fi
 
 if [ "$DOWNLOAD_SWIG" == "1" ]

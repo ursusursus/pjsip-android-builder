@@ -1,10 +1,16 @@
 #!/bin/bash -e
-PJPROJECT_BASE_FOLDER="../pjproject-2.4.5"
+# BY ENZO -> update to 2.7
+#PJPROJECT_BASE_FOLDER="../pjproject-2.4.5"
+#PJPROJECT_BASE_FOLDER="../pjproject-2.6"
+PJPROJECT_BASE_FOLDER="../pjproject-2.7"
 
+echo "1"
 cp g729.patch ../
 CURDIR=$(pwd)
 cd ..
+echo "2"
 patch -p0 < g729.patch
+echo "3"
 rm -rf g729.patch
 cd "$CURDIR"
 

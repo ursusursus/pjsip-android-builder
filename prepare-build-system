@@ -12,7 +12,7 @@ SDK_FILE=sdk.zip
 export NDK_TOOLCHAIN_VERSION=4.9
 export PATH="$NDK_TOOLCHAIN_VERSION:$PATH"
 
-if [ "$SETUP_PACKAGES" == "1" ]
+if [ "$SETUP_PACKAGES" == "1" && "1"=="0"]
 then
     # Setup Java 8
     sudo add-apt-repository -y ppa:webupd8team/java
@@ -94,10 +94,10 @@ then
         sed -i 's/TARGET_HOST+=-linux-android/TARGET_HOST="\${TARGET_HOST}-linux-android"/g' "${BASEDIR}/${PJSIP_DIR_NAME}/configure-android"
     fi
 
-    # echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
-    # cd g729_patch
-    # ./install.sh
-    # cd ..
+    echo "Apply patch to support G.729 codec without Intel IPP codec library ..."
+    cd g729_patch
+    ./install.sh
+    cd ..
 fi
 
 if [ "$DOWNLOAD_SWIG" == "1" ]
